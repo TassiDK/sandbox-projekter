@@ -465,7 +465,8 @@ function renderLeaf(group, leaf, branch, x, y, index) {
   leafG.addEventListener('mouseleave', ()  => hideTooltip());
   leafG.addEventListener('click',      (e) => {
     e.stopPropagation();
-    showTooltip(e, leaf, branch);
+    hideTooltip();
+    showLeafModal(leaf, branch, leafG);
   });
 
   // Tilføj rotation via transform
@@ -545,7 +546,7 @@ function scheduleLeafAnimation(svg) {
 }
 
 /* ============================================================
-   6. TOOLTIP-LOGIK
+   6. TOOLTIP-LOGIK  (hover preview)
    ============================================================ */
 
 const tooltip = document.getElementById('tooltip');
@@ -557,7 +558,6 @@ function showTooltip(event, leaf, branch) {
 
   const metaEl = document.getElementById('tt-meta');
   const linkEl = document.getElementById('tt-link');
-  const fromEl = document.querySelector('.tooltip-from');
 
   // Stjerner
   const starsEl = document.querySelector('.tooltip-stars') || (() => {
@@ -605,6 +605,16 @@ function showTooltip(event, leaf, branch) {
   tooltip.style.borderLeftWidth  = '3px';
   tooltip.style.borderLeftStyle  = 'solid';
 
+  // Hint om at klikke
+  let hintSpan = tooltip.querySelector('.tooltip-click-hint');
+  if (!hintSpan) {
+    hintSpan = document.createElement('p');
+    hintSpan.className = 'tooltip-click-hint';
+    hintSpan.style.cssText = 'font-size:0.68rem;color:var(--text-muted);margin-top:0.5rem;';
+    tooltip.appendChild(hintSpan);
+  }
+  hintSpan.textContent = '🖱 Klik for fuld detaljevisning';
+
   tooltip.classList.add('visible');
   tooltip.setAttribute('aria-hidden', 'false');
   moveTooltip(event);
@@ -630,12 +640,138 @@ function hideTooltip() {
   tooltip.setAttribute('aria-hidden', 'true');
 }
 
-// Skjul tooltip ved klik på bagggrunden
+// Skjul tooltip ved klik på baggrunden
 document.addEventListener('click', (e) => {
   if (!e.target.closest('.leaf') && !e.target.closest('.tooltip')) {
     hideTooltip();
   }
 });
+
+/* ============================================================
+   6b. LEAF DETAIL MODAL  (klik → fuld visning)
+   ============================================================ */
+
+/** Holder styr på det sidst åbnede blad-element (til puls-animation) */
+let activeLeafEl = null;
+
+/**
+ * Åbner leaf-detail-modalen med alle oplysninger om bladet.
+ * @param {Object}     leaf    – blade-data fra data.json
+ * @param {Object}     branch  – forældregren
+ * @param {SVGElement} leafEl  – SVG-element der blev klikket
+ */
+function showLeafModal(leaf, branch, leafEl) {
+  const modal = document.getElementById('leaf-modal');
+
+  // --- Banner ---
+  const banner = document.getElementById('lm-banner');
+  // Sæt gradient-baggrund fra grenens farve
+  banner.style.background = `linear-gradient(135deg, ${branch.color}cc 0%, ${branch.color}66 100%)`;
+
+  document.getElementById('lm-type-icon').textContent = TYPE_ICONS[leaf.type] || branch.icon;
+  document.getElementById('lm-category').textContent  = `${branch.icon} ${branch.label}`;
+  document.getElementById('lm-date').textContent      = leaf.date ? `📅 ${formatDate(leaf.date)}` : '';
+
+  // Niveau-prikker
+  const levelEl = document.getElementById('lm-level');
+  levelEl.innerHTML = '';
+  for (let i = 1; i <= 5; i++) {
+    const dot = document.createElement('span');
+    dot.className = `level-dot${i <= (leaf.level || 3) ? ' filled' : ''}`;
+    levelEl.appendChild(dot);
+  }
+
+  // --- Titel ---
+  document.getElementById('lm-title').textContent = leaf.title;
+
+  // --- Fra ---
+  const fromEl = document.getElementById('lm-from');
+  if (leaf.from) {
+    fromEl.textContent = `— ${leaf.from}`;
+    fromEl.classList.add('visible');
+  } else {
+    fromEl.textContent = '';
+    fromEl.classList.remove('visible');
+  }
+
+  // --- Beskrivelse ---
+  document.getElementById('lm-desc').textContent = leaf.description || '';
+
+  // --- Tags ---
+  const tagsEl = document.getElementById('lm-tags');
+  tagsEl.innerHTML = (leaf.tags || [])
+    .map(t => `<span class="leaf-modal-tag">#${t}</span>`)
+    .join('');
+
+  // Skjul divider hvis ingen tags
+  document.getElementById('lm-divider').style.display =
+    (leaf.tags && leaf.tags.length) ? '' : 'none';
+
+  // --- Niveau-bar ---
+  const levelPct = ((leaf.level || 3) / 5) * 100;
+  document.getElementById('lm-level-num').textContent = `${leaf.level || 3} / 5`;
+  const fill = document.getElementById('lm-level-fill');
+  fill.style.background = branch.color;
+  fill.style.boxShadow  = `0 0 8px ${branch.color}88`;
+  // Reset og re-animér
+  fill.style.width = '0%';
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => { fill.style.width = `${levelPct}%`; });
+  });
+
+  // --- Link ---
+  const linkEl = document.getElementById('lm-link');
+  if (leaf.link) {
+    linkEl.href = leaf.link;
+    linkEl.classList.remove('hidden');
+    // Farv link-knap efter gren
+    linkEl.style.color       = branch.color;
+    linkEl.style.borderColor = `${branch.color}55`;
+  } else {
+    linkEl.classList.add('hidden');
+  }
+
+  // --- Åbn modal ---
+  modal.classList.add('open');
+  modal.setAttribute('aria-hidden', 'false');
+
+  // Puls-animation på bladet
+  if (activeLeafEl) activeLeafEl.classList.remove('active-leaf');
+  activeLeafEl = leafEl;
+  leafEl.classList.remove('active-leaf');
+  void leafEl.offsetWidth; // reflow for at genstarte animation
+  leafEl.classList.add('active-leaf');
+
+  // Fokus til luk-knap (tilgængelighed)
+  document.getElementById('leaf-modal-close').focus();
+}
+
+/** Lukker leaf-modal */
+function closeLeafModal() {
+  const modal = document.getElementById('leaf-modal');
+  modal.classList.remove('open');
+  modal.setAttribute('aria-hidden', 'true');
+  if (activeLeafEl) {
+    activeLeafEl.classList.remove('active-leaf');
+    activeLeafEl = null;
+  }
+}
+
+/** Initialiserer leaf-modal-lyttere */
+function initLeafModal() {
+  document.getElementById('leaf-modal-close')
+    .addEventListener('click', closeLeafModal);
+
+  document.getElementById('leaf-modal')
+    .addEventListener('click', (e) => {
+      if (e.target === document.getElementById('leaf-modal')) closeLeafModal();
+    });
+
+  // Escape-tast lukker modal
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') closeLeafModal();
+  });
+}
 
 /* ============================================================
    7. PARTIKEL-EFFEKTER
@@ -773,6 +909,7 @@ async function init() {
   renderTree(data);
   spawnParticles(data.branches);
   initShareModal(data.profile);
+  initLeafModal();
 }
 
 // Start når DOM er klar

@@ -52,7 +52,7 @@
         <svg id="tree-svg" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"></svg>
         <div id="particle-layer" aria-hidden="true"></div>
       </div>
-      <p class="tree-hint">Hover over bladene · Klik på grene for at folde ud</p>
+      <p class="tree-hint">Hover over blade for preview · Klik på et blad for detaljer · Klik på grene for at fokusere</p>
     </section>
 
   </main>
@@ -66,6 +66,53 @@
     <p class="tooltip-desc" id="tt-desc"></p>
     <div class="tooltip-meta" id="tt-meta"></div>
     <a class="tooltip-link" id="tt-link" href="#" target="_blank" rel="noopener">Åbn link →</a>
+  </div>
+
+  <!-- ===== LEAF DETAIL MODAL ===== -->
+  <div class="modal-overlay" id="leaf-modal" aria-hidden="true" role="dialog" aria-modal="true" aria-label="Bladdetaljer">
+    <div class="modal leaf-modal">
+      <button class="modal-close" id="leaf-modal-close" aria-label="Luk">✕</button>
+
+      <!-- Farvet top-banner -->
+      <div class="leaf-modal-banner" id="lm-banner">
+        <span class="leaf-modal-type-icon" id="lm-type-icon"></span>
+        <div class="leaf-modal-banner-text">
+          <span class="leaf-modal-category" id="lm-category"></span>
+          <span class="leaf-modal-date" id="lm-date"></span>
+        </div>
+        <!-- Niveau-indikator -->
+        <div class="leaf-modal-level" id="lm-level"></div>
+      </div>
+
+      <!-- Titel -->
+      <h2 class="leaf-modal-title" id="lm-title"></h2>
+
+      <!-- Fra (feedback) -->
+      <p class="leaf-modal-from" id="lm-from"></p>
+
+      <!-- Beskrivelse -->
+      <p class="leaf-modal-desc" id="lm-desc"></p>
+
+      <!-- Divider -->
+      <hr class="leaf-modal-divider" id="lm-divider" />
+
+      <!-- Tags -->
+      <div class="leaf-modal-tags" id="lm-tags"></div>
+
+      <!-- Niveau-bar -->
+      <div class="leaf-modal-level-bar-wrap" id="lm-level-bar-wrap">
+        <span class="leaf-modal-level-label">Mestringsniveau</span>
+        <div class="leaf-modal-level-bar" id="lm-level-bar">
+          <div class="leaf-modal-level-fill" id="lm-level-fill"></div>
+        </div>
+        <span class="leaf-modal-level-num" id="lm-level-num"></span>
+      </div>
+
+      <!-- Eksternt link -->
+      <a class="leaf-modal-link" id="lm-link" href="#" target="_blank" rel="noopener">
+        <span>↗</span> Åbn eksternt link
+      </a>
+    </div>
   </div>
 
   <!-- ===== SHARE MODAL ===== -->

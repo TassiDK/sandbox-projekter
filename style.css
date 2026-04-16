@@ -722,3 +722,233 @@ body::before {
   outline-offset: 2px;
   border-radius: 4px;
 }
+
+/* ============================================================
+   LEAF DETAIL MODAL
+   ============================================================ */
+
+/* Bredere modal til bladdetaljer */
+.leaf-modal {
+  max-width: 480px;
+  padding: 0;
+  overflow: hidden;
+}
+
+/* Farvet banner øverst */
+.leaf-modal-banner {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1.25rem 1.5rem;
+  /* farve sættes dynamisk via JS */
+  position: relative;
+}
+
+.leaf-modal-banner::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: rgba(0,0,0,0.25);
+  pointer-events: none;
+}
+
+.leaf-modal-type-icon {
+  font-size: 2rem;
+  line-height: 1;
+  position: relative;
+  z-index: 1;
+  filter: drop-shadow(0 2px 6px rgba(0,0,0,0.4));
+}
+
+.leaf-modal-banner-text {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  position: relative;
+  z-index: 1;
+}
+
+.leaf-modal-category {
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: rgba(255,255,255,0.75);
+  font-weight: 500;
+}
+
+.leaf-modal-date {
+  font-size: 0.8rem;
+  color: rgba(255,255,255,0.9);
+  font-family: var(--font-mono);
+}
+
+/* Niveau-prikker i højre side af banner */
+.leaf-modal-level {
+  margin-left: auto;
+  display: flex;
+  gap: 5px;
+  align-items: center;
+  position: relative;
+  z-index: 1;
+}
+
+.level-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.25);
+  border: 1.5px solid rgba(255,255,255,0.5);
+  transition: background 0.2s;
+}
+
+.level-dot.filled {
+  background: rgba(255,255,255,0.9);
+  border-color: white;
+  box-shadow: 0 0 6px rgba(255,255,255,0.6);
+}
+
+/* Indhold-padding */
+.leaf-modal-title {
+  font-family: var(--font-display);
+  font-size: 1.45rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  line-height: 1.25;
+  padding: 1.25rem 1.5rem 0.4rem;
+}
+
+.leaf-modal-from {
+  font-size: 0.8rem;
+  font-style: italic;
+  color: var(--accent-violet);
+  padding: 0 1.5rem 0.6rem;
+  display: none; /* skjult medmindre der er 'from' */
+}
+
+.leaf-modal-from.visible { display: block; }
+
+.leaf-modal-desc {
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  line-height: 1.65;
+  padding: 0 1.5rem 1rem;
+}
+
+.leaf-modal-divider {
+  border: none;
+  border-top: 1px solid var(--bg-panel-border);
+  margin: 0 1.5rem 1rem;
+}
+
+/* Tags */
+.leaf-modal-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  padding: 0 1.5rem 1rem;
+  min-height: 1rem;
+}
+
+.leaf-modal-tag {
+  background: var(--bg-secondary);
+  border: 1px solid var(--bg-panel-border);
+  border-radius: 20px;
+  padding: 0.2rem 0.65rem;
+  font-size: 0.72rem;
+  color: var(--text-secondary);
+}
+
+/* Niveau-bar */
+.leaf-modal-level-bar-wrap {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0 1.5rem 1.1rem;
+}
+
+.leaf-modal-level-label {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  white-space: nowrap;
+}
+
+.leaf-modal-level-bar {
+  flex: 1;
+  height: 6px;
+  background: var(--bg-secondary);
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.leaf-modal-level-fill {
+  height: 100%;
+  border-radius: 10px;
+  width: 0%;
+  transition: width 0.7s cubic-bezier(0.34,1.2,0.64,1);
+  /* farve sættes dynamisk */
+}
+
+.leaf-modal-level-num {
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+  font-family: var(--font-mono);
+  white-space: nowrap;
+}
+
+/* Eksternt link */
+.leaf-modal-link {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 0 1.5rem 1.5rem;
+  padding: 0.65rem 1rem;
+  border-radius: 8px;
+  border: 1px solid var(--bg-panel-border);
+  background: var(--bg-secondary);
+  color: var(--accent-sky);
+  text-decoration: none;
+  font-size: 0.82rem;
+  transition: border-color var(--transition-fast), box-shadow var(--transition-fast), transform var(--transition-fast);
+}
+
+.leaf-modal-link:hover {
+  border-color: var(--accent-sky);
+  box-shadow: 0 0 14px var(--glow-sky);
+  transform: translateY(-1px);
+}
+
+.leaf-modal-link.hidden { display: none; }
+
+/* Close knap placering oven på banner */
+.leaf-modal .modal-close {
+  position: absolute;
+  top: 0.7rem;
+  right: 0.7rem;
+  z-index: 10;
+  background: rgba(0,0,0,0.3);
+  color: white;
+  border: 1px solid rgba(255,255,255,0.2);
+}
+
+.leaf-modal .modal-close:hover {
+  background: rgba(0,0,0,0.5);
+  color: white;
+}
+
+/* Puls-animation på det klikkede blad */
+.leaf.active-leaf {
+  animation: leaf-pulse 0.6s ease-out;
+}
+
+@keyframes leaf-pulse {
+  0%   { filter: brightness(1) drop-shadow(0 0 0px transparent); }
+  40%  { filter: brightness(1.8) drop-shadow(0 0 14px white); }
+  100% { filter: brightness(1); }
+}
+
+@media (max-width: 600px) {
+  .leaf-modal { max-width: 100%; margin: 0 0.5rem; }
+  .leaf-modal-title { font-size: 1.2rem; }
+}
