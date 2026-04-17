@@ -440,6 +440,7 @@ function renderLeaf(group, leaf, branch, x, y, index) {
     class: 'leaf',
     transform: `translate(${x},${y})`,
     style: `opacity:0`,   // Starter usynlig, animeres ind
+    'pointer-events': 'all',
     'data-leaf': leaf.id,
     'data-branch': branch.id,
   });
@@ -488,6 +489,7 @@ function leafShape(size, color, level) {
     opacity: 0.85,
     stroke: 'rgba(255,255,255,0.15)',
     'stroke-width': '0.8',
+    'pointer-events': 'visiblePainted',
   });
 
   // Midterribbe
@@ -496,6 +498,7 @@ function leafShape(size, color, level) {
     x2: 0, y2: -size * 1.8,
     stroke: 'rgba(255,255,255,0.25)',
     'stroke-width': '0.8',
+    'pointer-events': 'visiblePainted',
   });
 
   // Glød for høj-niveau
@@ -661,6 +664,7 @@ let activeLeafEl = null;
  * @param {SVGElement} leafEl  – SVG-element der blev klikket
  */
 function showLeafModal(leaf, branch, leafEl) {
+  console.log('🌳 Opening leaf modal for:', leaf.title, 'in branch:', branch.label);
   const modal = document.getElementById('leaf-modal');
 
   // --- Banner ---
@@ -910,6 +914,16 @@ async function init() {
   spawnParticles(data.branches);
   initShareModal(data.profile);
   initLeafModal();
+
+  // Demo: Åbn modalen med det første læring-blad
+  const learningBranch = data.branches.find(b => b.id === 'learning');
+  if (learningBranch && learningBranch.leaves.length > 0) {
+    setTimeout(() => {
+      console.log('📖 Auto-opening learning example modal...');
+      const firstLeaf = learningBranch.leaves[0];
+      showLeafModal(firstLeaf, learningBranch);
+    }, 800);
+  }
 }
 
 // Start når DOM er klar
