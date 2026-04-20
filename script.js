@@ -74,16 +74,71 @@ function stars(level = 3, max = 5) {
 
 /* ============================================================
    3. DATA-LOADING
+   Forsøger først fetch('data.json').
+   Hvis det fejler (f.eks. file://-protokol eller netværksfejl),
+   bruges FALLBACK_DATA som er en kopi af data.json inlined her.
    ============================================================ */
+
+/** Inline fallback – opdatér denne hvis du ændrer data.json */
+const FALLBACK_DATA = {
+  "profile": {
+    "name": "Alex Møller",
+    "title": "Full Stack Developer",
+    "tagline": "Bygger fremtiden én commit ad gangen",
+    "avatar": "",
+    "startYear": 2020
+  },
+  "branches": [
+    {
+      "id": "skills", "label": "Kompetencer", "icon": "⚡",
+      "color": "#4ade80", "angle": -60,
+      "leaves": [
+        { "id": "s1", "title": "React & TypeScript", "description": "Avanceret komponent-arkitektur, hooks, og performance-optimering.", "date": "2021-03-15", "level": 5, "type": "skill", "tags": ["frontend", "javascript"] },
+        { "id": "s2", "title": "Node.js & Express", "description": "REST API-design, middleware, og skalerbar backend-arkitektur.", "date": "2020-08-10", "level": 4, "type": "skill", "tags": ["backend", "javascript"] },
+        { "id": "s3", "title": "PostgreSQL", "description": "Komplekse forespørgsler, indeksering og databaseoptimering.", "date": "2021-01-20", "level": 4, "type": "skill", "tags": ["database", "backend"] },
+        { "id": "s4", "title": "Docker & Kubernetes", "description": "Containerisering og orkestrering af mikrotjenester i produktion.", "date": "2022-06-05", "level": 3, "type": "skill", "tags": ["devops", "cloud"] }
+      ]
+    },
+    {
+      "id": "achievements", "label": "Bedrifter", "icon": "🏆",
+      "color": "#fbbf24", "angle": -20,
+      "leaves": [
+        { "id": "a1", "title": "Lancerede SaaS-produkt", "description": "Byggede og lancerede et SaaS-produkt fra bunden, der nu har 500+ aktive brugere.", "date": "2023-04-01", "level": 5, "type": "achievement", "link": "https://example.com", "tags": ["produkt", "entrepreneurship"] },
+        { "id": "a2", "title": "Open Source Bidrag", "description": "Bidrag til React Query-biblioteket accepteret med 200+ GitHub-stjerner.", "date": "2022-11-15", "level": 4, "type": "achievement", "link": "https://github.com", "tags": ["open source", "community"] },
+        { "id": "a3", "title": "Tech Talk på JavaZone", "description": "Holdt foredrag om mikrofrontend-arkitektur for 300+ deltagere.", "date": "2023-09-06", "level": 5, "type": "achievement", "tags": ["speaking", "community"] }
+      ]
+    },
+    {
+      "id": "feedback", "label": "Anerkendelse", "icon": "💬",
+      "color": "#a78bfa", "angle": 20,
+      "leaves": [
+        { "id": "f1", "title": "\"Exceptionel kodekvalitet\"", "description": "Fra tech lead Sarah Jensen: \"Alex skriver den reneste, mest vedligeholdbare kode på teamet. En sand inspiration.\"", "date": "2023-12-01", "level": 5, "type": "feedback", "from": "Sarah Jensen, Tech Lead", "tags": ["code quality", "teamwork"] },
+        { "id": "f2", "title": "\"Born problemløser\"", "description": "Fra CEO Mads Christensen: \"Alex løste et kritisk produktionsproblem på rekordtid. Uerstattelig.\"", "date": "2023-08-14", "level": 4, "type": "feedback", "from": "Mads Christensen, CEO", "tags": ["problem-solving", "reliability"] },
+        { "id": "f3", "title": "Årets Medarbejder 2023", "description": "Tildelt årets medarbejderpris for ekstraordinær indsats og teamspirit.", "date": "2024-01-10", "level": 5, "type": "feedback", "from": "Hele holdet", "tags": ["award", "recognition"] }
+      ]
+    },
+    {
+      "id": "learning", "label": "Læring", "icon": "📚",
+      "color": "#38bdf8", "angle": 60,
+      "leaves": [
+        { "id": "l1", "title": "AWS Solutions Architect", "description": "Certificeret AWS Solutions Architect – Associate. Gennemgik 80+ timers studium.", "date": "2023-03-20", "level": 4, "type": "learning", "link": "https://aws.amazon.com/certification", "tags": ["cloud", "certification"] },
+        { "id": "l2", "title": "Machine Learning Fundamentals", "description": "Gennemførte Courseras ML-specialisering med topkarakter.", "date": "2023-07-30", "level": 3, "type": "learning", "link": "https://coursera.org", "tags": ["ai", "python"] },
+        { "id": "l3", "title": "System Design Mastery", "description": "Studerede skalerbare systemer: load balancing, caching-strategier, og distribuerede databaser.", "date": "2024-02-15", "level": 4, "type": "learning", "tags": ["architecture", "scalability"] }
+      ]
+    }
+  ]
+};
 
 async function loadData() {
   try {
     const res = await fetch('data.json');
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    return await res.json();
+    const data = await res.json();
+    console.log('Data indlæst fra data.json');
+    return data;
   } catch (err) {
-    console.error('Kunne ikke indlæse data.json:', err);
-    return null;
+    console.warn('fetch("data.json") fejlede – bruger inline fallback-data.', err);
+    return FALLBACK_DATA;
   }
 }
 
