@@ -440,7 +440,6 @@ function renderLeaf(group, leaf, branch, x, y, index) {
     class: 'leaf',
     transform: `translate(${x},${y})`,
     style: `opacity:0`,   // Starter usynlig, animeres ind
-    'pointer-events': 'all',
     'data-leaf': leaf.id,
     'data-branch': branch.id,
   });
@@ -489,7 +488,6 @@ function leafShape(size, color, level) {
     opacity: 0.85,
     stroke: 'rgba(255,255,255,0.15)',
     'stroke-width': '0.8',
-    'pointer-events': 'visiblePainted',
   });
 
   // Midterribbe
@@ -498,7 +496,6 @@ function leafShape(size, color, level) {
     x2: 0, y2: -size * 1.8,
     stroke: 'rgba(255,255,255,0.25)',
     'stroke-width': '0.8',
-    'pointer-events': 'visiblePainted',
   });
 
   // Glød for høj-niveau
@@ -658,18 +655,24 @@ document.addEventListener('click', (e) => {
 let activeLeafEl = null;
 
 /**
+ * Guard-flag: forhindrer at modal lukkes i samme tick som den åbnes.
+ * SVG-klik-events bobler op til document og kan trigge closeLeafModal
+ * via overlay-lytteren, hvis vi ikke beskytter imod det.
+ */
+let leafModalJustOpened = false;
+
+/**
  * Åbner leaf-detail-modalen med alle oplysninger om bladet.
- * @param {Object}     leaf    – blade-data fra data.json
- * @param {Object}     branch  – forældregren
- * @param {SVGElement} leafEl  – SVG-element der blev klikket
  */
 function showLeafModal(leaf, branch, leafEl) {
-  console.log('🌳 Opening leaf modal for:', leaf.title, 'in branch:', branch.label);
   const modal = document.getElementById('leaf-modal');
+
+  // Sæt flag så overlay-lytteren ikke lukker modalen med det samme
+  leafModalJustOpened = true;
+  setTimeout(() => { leafModalJustOpened = false; }, 50);
 
   // --- Banner ---
   const banner = document.getElementById('lm-banner');
-  // Sæt gradient-baggrund fra grenens farve
   banner.style.background = `linear-gradient(135deg, ${branch.color}cc 0%, ${branch.color}66 100%)`;
 
   document.getElementById('lm-type-icon').textContent = TYPE_ICONS[leaf.type] || branch.icon;
@@ -717,7 +720,6 @@ function showLeafModal(leaf, branch, leafEl) {
   const fill = document.getElementById('lm-level-fill');
   fill.style.background = branch.color;
   fill.style.boxShadow  = `0 0 8px ${branch.color}88`;
-  // Reset og re-animér
   fill.style.width = '0%';
   requestAnimationFrame(() => {
     requestAnimationFrame(() => { fill.style.width = `${levelPct}%`; });
@@ -728,7 +730,6 @@ function showLeafModal(leaf, branch, leafEl) {
   if (leaf.link) {
     linkEl.href = leaf.link;
     linkEl.classList.remove('hidden');
-    // Farv link-knap efter gren
     linkEl.style.color       = branch.color;
     linkEl.style.borderColor = `${branch.color}55`;
   } else {
@@ -743,7 +744,7 @@ function showLeafModal(leaf, branch, leafEl) {
   if (activeLeafEl) activeLeafEl.classList.remove('active-leaf');
   activeLeafEl = leafEl;
   leafEl.classList.remove('active-leaf');
-  void leafEl.offsetWidth; // reflow for at genstarte animation
+  void leafEl.getBoundingClientRect(); // trigger reflow i SVG-kontekst
   leafEl.classList.add('active-leaf');
 
   // Fokus til luk-knap (tilgængelighed)
@@ -752,6 +753,7 @@ function showLeafModal(leaf, branch, leafEl) {
 
 /** Lukker leaf-modal */
 function closeLeafModal() {
+  if (leafModalJustOpened) return; // ignorer hvis modal netop åbnedes
   const modal = document.getElementById('leaf-modal');
   modal.classList.remove('open');
   modal.setAttribute('aria-hidden', 'true');
@@ -764,11 +766,17 @@ function closeLeafModal() {
 /** Initialiserer leaf-modal-lyttere */
 function initLeafModal() {
   document.getElementById('leaf-modal-close')
-    .addEventListener('click', closeLeafModal);
+    .addEventListener('click', (e) => {
+      e.stopPropagation();
+      closeLeafModal();
+    });
 
+  // Klik på overlay (men ikke på selve modal-boksen) lukker
   document.getElementById('leaf-modal')
     .addEventListener('click', (e) => {
-      if (e.target === document.getElementById('leaf-modal')) closeLeafModal();
+      if (e.target === document.getElementById('leaf-modal')) {
+        closeLeafModal();
+      }
     });
 
   // Escape-tast lukker modal
@@ -914,16 +922,6 @@ async function init() {
   spawnParticles(data.branches);
   initShareModal(data.profile);
   initLeafModal();
-
-  // Demo: Åbn modalen med det første læring-blad
-  const learningBranch = data.branches.find(b => b.id === 'learning');
-  if (learningBranch && learningBranch.leaves.length > 0) {
-    setTimeout(() => {
-      console.log('📖 Auto-opening learning example modal...');
-      const firstLeaf = learningBranch.leaves[0];
-      showLeafModal(firstLeaf, learningBranch);
-    }, 800);
-  }
 }
 
 // Start når DOM er klar
