@@ -494,7 +494,7 @@ function renderLeaf(group, leaf, branch, x, y, index) {
   const leafG = svgEl('g', {
     class: 'leaf',
     transform: `translate(${x},${y})`,
-    style: `opacity:0`,   // Starter usynlig, animeres ind
+    style: `opacity:1`,
     'data-leaf': leaf.id,
     'data-branch': branch.id,
   });
@@ -587,16 +587,17 @@ function toggleBranch(branchId) {
 }
 
 /**
- * Animerer blade ind med forsinkelse.
+ * Animerer blade ind – bruger CSS animation-delay direkte
+ * så det ikke afhænger af setTimeout.
  */
 function scheduleLeafAnimation(svg) {
-  const leaves = svg.querySelectorAll('.leaf');
+  const leaves = svg.querySelectorAll(".leaf");
   leaves.forEach((leaf, i) => {
-    setTimeout(() => {
-      leaf.style.opacity   = '1';
-      leaf.style.transition = 'opacity 0.3s ease';
-      leaf.classList.add('popped');
-    }, 300 + i * 80);
+    leaf.style.animationName           = "leaf-pop";
+    leaf.style.animationDuration       = "0.5s";
+    leaf.style.animationDelay          = (0.1 + i * 0.06) + "s";
+    leaf.style.animationTimingFunction = "cubic-bezier(0.34,1.56,0.64,1)";
+    leaf.style.animationFillMode       = "both";
   });
 }
 
