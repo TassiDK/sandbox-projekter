@@ -535,28 +535,25 @@ function renderLeaf(group, leaf, branch, x, y, index) {
 function leafShape(size, color, level) {
   const g = svgEl('g');
 
-  // Simpel løvblad-form
+  // Bladform: to ellipser der overlapper (robust cross-browser)
+  const s2 = size * 2;
+  const d = 'M0,0 C' + (-size*0.6) + ',' + (-size) + ' 0,' + (-s2*0.9) + ' 0,' + (-s2) + ' C0,' + (-s2*0.9) + ' ' + (size*0.6) + ',' + (-size) + ' 0,0';
+
   const path = svgEl('path', {
-    d: `M0,0 C${-size*0.6},${-size} 0,${-size*1.8} 0,${-size*2}
-        C0,${-size*1.8} ${size*0.6},${-size} 0,0`,
+    d: d,
     fill: color,
-    opacity: 0.85,
-    stroke: 'rgba(255,255,255,0.15)',
+    opacity: '0.88',
+    stroke: 'rgba(255,255,255,0.12)',
     'stroke-width': '0.8',
   });
 
   // Midterribbe
   const rib = svgEl('line', {
-    x1: 0, y1: 0,
-    x2: 0, y2: -size * 1.8,
-    stroke: 'rgba(255,255,255,0.25)',
+    x1: '0', y1: '0',
+    x2: '0', y2: String(-size * 1.8),
+    stroke: 'rgba(255,255,255,0.22)',
     'stroke-width': '0.8',
   });
-
-  // Glød for høj-niveau
-  if (level >= 4) {
-    path.setAttribute('filter', 'url(#glow-general)');
-  }
 
   g.appendChild(path);
   g.appendChild(rib);
