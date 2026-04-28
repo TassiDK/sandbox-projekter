@@ -170,7 +170,7 @@ function renderProfile(profile, branches) {
     <span class="stat-pill"><strong>${totalLeaves}</strong> blade</span>
     <span class="stat-pill"><strong>${branches.length}</strong> grene</span>
     <span class="stat-pill"><strong>${yearsActive}+</strong> år aktiv</span>
-    <span class="stat-pill">Maks. <strong>${stars(maxLevel,5).slice(0,maxLevel)}</strong></span>
+    <span class="stat-pill">Maks. <strong>${stars(maxLevel, 5)}</strong></span>
   `;
 
   // Legend
@@ -537,7 +537,13 @@ function leafShape(size, color, level) {
 
   // Bladform: to ellipser der overlapper (robust cross-browser)
   const s2 = size * 2;
-  const d = 'M0,0 C' + (-size*0.6) + ',' + (-size) + ' 0,' + (-s2*0.9) + ' 0,' + (-s2) + ' C0,' + (-s2*0.9) + ' ' + (size*0.6) + ',' + (-size) + ' 0,0';
+  const cp1x = -size * 0.6;
+  const cp1y = -size;
+  const cp2x = 0;
+  const cp2y = -s2 * 0.9;
+  const cp3x = size * 0.6;
+  const cp3y = -size;
+  const d = `M0,0 C${cp1x},${cp1y} ${cp2x},${cp2y} 0,${-s2} C0,${cp2y} ${cp3x},${cp3y} 0,0`;
 
   const path = svgEl('path', {
     d: d,
@@ -888,7 +894,7 @@ function initThemeToggle() {
   const btn      = document.getElementById('theme-toggle');
   const iconEl   = btn.querySelector('.theme-icon');
   const prefDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-  let   isDark   = localStorage.getItem('hype-theme') !== 'light' && prefDark !== false;
+  let   isDark   = prefDark;
 
   function applyTheme() {
     document.body.classList.toggle('dark-mode',  isDark);
