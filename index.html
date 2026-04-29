@@ -5,132 +5,97 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Hype-Træet 🌳</title>
   <meta name="description" content="En interaktiv karriere tracker – dine kompetencer og bedrifter som et voksende træ." />
-
-  <!-- Google Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet" />
-
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="style.css" />
 </head>
 <body class="dark-mode">
 
-  <!-- ===== HEADER ===== -->
   <header class="site-header">
     <div class="header-inner">
       <div class="logo">
-        <span class="logo-icon">🌳</span>
+        <span>🌳</span>
         <span class="logo-text">Hype-Træet</span>
       </div>
-      <nav class="header-actions">
-        <button id="theme-toggle" class="btn-icon" title="Skift tema" aria-label="Skift tema">
-          <span class="theme-icon">☀️</span>
-        </button>
-        <button id="share-btn" class="btn-icon" title="Del" aria-label="Del side">
-          <span>↗</span>
-        </button>
-      </nav>
+      <div class="header-actions">
+        <button id="theme-toggle" class="btn-icon" title="Skift tema">☀️</button>
+        <button id="share-btn"   class="btn-icon" title="Del">↗</button>
+      </div>
     </div>
   </header>
 
-  <!-- ===== MAIN ===== -->
   <main class="main-layout">
 
-    <!-- Profile card -->
-    <aside class="profile-panel" id="profile-panel">
+    <aside class="profile-panel">
       <div class="profile-avatar" id="profile-avatar">🧑‍💻</div>
-      <h1 class="profile-name" id="profile-name">…</h1>
-      <p class="profile-title" id="profile-title">…</p>
-      <p class="profile-tagline" id="profile-tagline">…</p>
-      <div class="profile-stats" id="profile-stats"></div>
-      <div class="legend" id="legend"></div>
+      <h1  class="profile-name"   id="profile-name">…</h1>
+      <p   class="profile-title"  id="profile-title">…</p>
+      <p   class="profile-tagline" id="profile-tagline">…</p>
+      <div class="profile-stats"  id="profile-stats"></div>
+      <div class="legend">
+        <p class="legend-title">Kategorier</p>
+        <div id="legend-items"></div>
+      </div>
     </aside>
 
-    <!-- Tree canvas -->
-    <section class="tree-section" aria-label="Karriere-træ">
+    <section class="tree-section">
       <div class="tree-container" id="tree-container">
-        <svg id="tree-svg" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"></svg>
-        <div id="particle-layer" aria-hidden="true"></div>
+        <!-- SVG stamme + grene -->
+        <svg id="tree-svg" xmlns="http://www.w3.org/2000/svg"></svg>
+        <!-- HTML blade injiceres her via JS -->
       </div>
-      <p class="tree-hint">Hover over blade for preview · Klik på et blad for detaljer · Klik på grene for at fokusere</p>
+      <p class="tree-hint">Hover = preview &nbsp;·&nbsp; Klik på blad = detaljer &nbsp;·&nbsp; Klik på gren = fokus</p>
     </section>
 
   </main>
 
-  <!-- ===== TOOLTIP ===== -->
-  <div class="tooltip" id="tooltip" role="tooltip" aria-hidden="true">
-    <div class="tooltip-header">
-      <span class="tooltip-icon" id="tt-icon"></span>
-      <span class="tooltip-title" id="tt-title"></span>
-    </div>
-    <p class="tooltip-desc" id="tt-desc"></p>
-    <div class="tooltip-meta" id="tt-meta"></div>
-    <a class="tooltip-link" id="tt-link" href="#" target="_blank" rel="noopener">Åbn link →</a>
+  <!-- Tooltip -->
+  <div class="tooltip" id="tooltip">
+    <div class="tooltip-title"  id="tt-title"></div>
+    <div class="tooltip-desc"   id="tt-desc"></div>
+    <div class="tooltip-stars"  id="tt-stars"></div>
+    <div class="tooltip-hint">Klik for fuld detaljevisning</div>
   </div>
 
-  <!-- ===== LEAF DETAIL MODAL ===== -->
-  <div class="modal-overlay" id="leaf-modal" aria-hidden="true" role="dialog" aria-modal="true" aria-label="Bladdetaljer">
-    <div class="modal leaf-modal">
-      <button class="modal-close" id="leaf-modal-close" aria-label="Luk">✕</button>
-
-      <!-- Farvet top-banner -->
-      <div class="leaf-modal-banner" id="lm-banner">
-        <span class="leaf-modal-type-icon" id="lm-type-icon"></span>
-        <div class="leaf-modal-banner-text">
-          <span class="leaf-modal-category" id="lm-category"></span>
-          <span class="leaf-modal-date" id="lm-date"></span>
+  <!-- Leaf detail modal -->
+  <div class="modal-overlay" id="leaf-modal">
+    <div class="leaf-modal">
+      <button class="modal-close" id="lm-close">✕</button>
+      <div class="lm-banner" id="lm-banner">
+        <span class="lm-icon"     id="lm-icon"></span>
+        <div  class="lm-meta">
+          <span class="lm-category" id="lm-category"></span>
+          <span class="lm-date"     id="lm-date"></span>
         </div>
-        <!-- Niveau-indikator -->
-        <div class="leaf-modal-level" id="lm-level"></div>
+        <div class="lm-dots" id="lm-dots"></div>
       </div>
-
-      <!-- Titel -->
-      <h2 class="leaf-modal-title" id="lm-title"></h2>
-
-      <!-- Fra (feedback) -->
-      <p class="leaf-modal-from" id="lm-from"></p>
-
-      <!-- Beskrivelse -->
-      <p class="leaf-modal-desc" id="lm-desc"></p>
-
-      <!-- Divider -->
-      <hr class="leaf-modal-divider" id="lm-divider" />
-
-      <!-- Tags -->
-      <div class="leaf-modal-tags" id="lm-tags"></div>
-
-      <!-- Niveau-bar -->
-      <div class="leaf-modal-level-bar-wrap" id="lm-level-bar-wrap">
-        <span class="leaf-modal-level-label">Mestringsniveau</span>
-        <div class="leaf-modal-level-bar" id="lm-level-bar">
-          <div class="leaf-modal-level-fill" id="lm-level-fill"></div>
+      <div class="lm-body">
+        <h2  class="lm-title" id="lm-title"></h2>
+        <p   class="lm-from"  id="lm-from"></p>
+        <p   class="lm-desc"  id="lm-desc"></p>
+        <hr  class="lm-divider" />
+        <div class="lm-tags"  id="lm-tags"></div>
+        <div class="lm-level-row">
+          <span class="lm-level-label">Niveau</span>
+          <div  class="lm-bar"><div class="lm-fill" id="lm-fill"></div></div>
+          <span class="lm-num" id="lm-num"></span>
         </div>
-        <span class="leaf-modal-level-num" id="lm-level-num"></span>
+        <a class="lm-link hidden" id="lm-link" href="#" target="_blank" rel="noopener">↗ Åbn eksternt link</a>
       </div>
-
-      <!-- Eksternt link -->
-      <a class="leaf-modal-link" id="lm-link" href="#" target="_blank" rel="noopener">
-        <span>↗</span> Åbn eksternt link
-      </a>
     </div>
   </div>
 
-  <!-- ===== SHARE MODAL ===== -->
-  <div class="modal-overlay" id="share-modal" aria-hidden="true" role="dialog" aria-modal="true" aria-label="Del Hype-Træet">
-    <div class="modal">
-      <button class="modal-close" id="modal-close" aria-label="Luk">✕</button>
+  <!-- Share modal -->
+  <div class="modal-overlay" id="share-modal">
+    <div class="share-modal">
+      <button class="modal-close" id="share-close">✕</button>
       <h2>Del dit Hype-Træ 🌳</h2>
       <p>Vis verden hvad du er lavet af!</p>
       <div class="share-buttons">
-        <a class="share-btn linkedin" id="share-linkedin" href="#" target="_blank" rel="noopener">
-          <span>in</span> LinkedIn
-        </a>
-        <a class="share-btn twitter" id="share-twitter" href="#" target="_blank" rel="noopener">
-          <span>𝕏</span> Twitter / X
-        </a>
-        <button class="share-btn copy" id="share-copy">
-          <span>🔗</span> Kopier link
-        </button>
+        <a class="share-btn linkedin" id="share-linkedin" href="#" target="_blank" rel="noopener"><span>in</span> LinkedIn</a>
+        <a class="share-btn twitter"  id="share-twitter"  href="#" target="_blank" rel="noopener"><span>𝕏</span> Twitter / X</a>
+        <button class="share-btn copy" id="share-copy"><span>🔗</span> Kopier link</button>
       </div>
     </div>
   </div>
